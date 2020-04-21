@@ -11,7 +11,7 @@
             <img src="static/img/logo-half-grigio-20.png" />
           </div>
         </a>
-        <h3 class="card-title" align="center" style="color:#C0C0C0"><b><i>Contract Portal</i></b></h3>
+        <h3 class="card-title" align="center" style="color:#C0C0C0"><b><i>SDG Portal</i></b></h3>
                     
       </div>
 
@@ -42,7 +42,7 @@
     props: {
       title: {
         type: String,
-        default: 'Hera Contract Portal'
+        default: 'Hera SDG Portal'
       },
       backgroundColor: {
         type: String,

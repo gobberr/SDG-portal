@@ -22,7 +22,7 @@
       logout() {        
         this.$store.dispatch(AUTH_LOGOUT).then(() => {                  
           console.log('Removed access token from Vue App session')
-          window.location = "https://dev.dfil-tech.eu/aac-hera/logout?target=https://dev.dfil-tech.eu/hera-contract-portal/"          
+          window.location = "https://dev.dfil-tech.eu/aac-hera/logout?target=http://localhost:8000/" // //FIXME: when this app will be deployed, update the target param with your own url         
         });        
       }
     }

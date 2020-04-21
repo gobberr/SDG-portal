@@ -12,15 +12,11 @@
           </card>
           
 
-          <!-- Tabella overview smart contract -->
+          <!-- Tabella overview dello smart contract -->
           <card>          
             <div class="row">
               <div class="col-12">
-                <b-table id="tableOne" :no-provider-sorting=true ref="tableOne" responsive bordered hover :items="tableOne.data" :fields="tableOne.fields">
-                  <template slot="contract.params.contractName" slot-scope="cell">
-                    <a href="" @click.prevent="contractDetailsPage(cell.item)" class="link text-primary">{{tableOne.data[cell.index].contract.params.contractName}}</a>
-                  </template>                
-                </b-table>
+                <b-table id="tableOne" :no-provider-sorting=true ref="tableOne" responsive bordered hover :items="tableOne.data" :fields="tableOne.fields"></b-table>
               </div>  
             </div>
           </card>
@@ -29,7 +25,7 @@
           <!-- Tabs con i dettagli dello smart contract -->
           <card>            
             <md-tabs class="md-transparent" md-alignment="fixed">
-              <md-tab id="abi" md-label="Functions">
+              <md-tab id="abi" md-label="Smart contract methods">
                 <card v-if='abi.length>0'>                                        
                   <br>                  
                   <div class="row">
@@ -63,7 +59,7 @@
                   </div>
                 </card>
                 <card v-else>                      
-                  <h4> No functions found on smart contract</h4>
+                  <h4> No methods found on smart contract</h4>
                 </card>                  
               </md-tab>
 
@@ -72,7 +68,7 @@
                   <pre><br>{{smartContract.contract.solidity}}</pre>                        
                 </card>                  
               </md-tab>            
-              <md-tab id="html" md-label="Contract values" v-if="html_preview.length>0">
+              <md-tab id="html" md-label="HTML" v-if="html_preview.length>0">
                 <card>
                   <br><p v-html="html_preview"></p>
                 </card>
@@ -80,11 +76,7 @@
             </md-tabs>              
           </card>     
 
-          <!-- 
-          <card>
-            {{methodDetails}}
-          </card>
-          -->
+         
         </div>        
       </div>     
     </div>

@@ -14,10 +14,18 @@
         <span class="navbar-toggler-bar burger-lines"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-left">
-        <h4 class="card-title text-primary">User: <b>{{user}}</b></h4>        
+        <h4 class="card-title text-primary">Nome: <b>{{name}}</b></h4>        
+        
       </div>       
-      <div class="collapse navbar-collapse justify-content-center">
-        <h4 class="card-title text-primary">Owner: <b>{{APP_OWNER}}</b></h4>        
+      <div class="collapse navbar-collapse justify-content-left">
+        <h4 class="card-title text-primary">Email: <b>{{email}}</b></h4>        
+        
+      </div>       
+      <div class="collapse navbar-collapse justify-content-left">
+        <h4 class="card-title text-primary">Wallet address: <b>{{wallet_address}}</b></h4>        
+      </div>  
+      <div class="collapse navbar-collapse justify-content-left">
+        <h4 class="card-title text-primary">Token: <b>{{token_counter}}TK</b></h4>        
       </div>       
       <div  class="collapse navbar-collapse justify-content-end">
         <button v-show="owner != ''" @click="logout" class="btn btn-danger btn-square btn-icon justify-content-end"><i class="nc-icon nc-key-25"></i>&nbsp;&nbsp; Logout</button>
@@ -44,8 +52,15 @@
 
     data() {
       return {        
-        user: this.$store.state.auth.owner,                
-        APP_OWNER: OWNER
+        name: this.$store.state.auth.owner,                
+        //email: this.$store.state.auth.email,
+        //wallet_address: this.$store.state.auth.wallet_address,
+        //token_counter: this.$store.state.auth.token_counter,
+
+        //FIXME: these are mockup data
+        email: "utente@email.it",
+        wallet_address: "0x5eD8Cee6b63b1c6AFce3AD7c92f4fD7E1B8fAd9F",
+        token_counter: "136"
       }
     },    
 
@@ -73,7 +88,7 @@
       logout() {                
         this.$store.dispatch(AUTH_LOGOUT).then(() => {                  
           console.log('Removed access token from Vue App session')
-          window.location = "https://dev.dfil-tech.eu/aac-hera/logout?target=https://dev.dfil-tech.eu/hera-contract-portal/"          
+          window.location = "https://dev.dfil-tech.eu/aac-hera/logout?target=http://localhost:8000/" //FIXME: when this app will be deployed, update the target param with your own url
         });        
       },
       debug() {

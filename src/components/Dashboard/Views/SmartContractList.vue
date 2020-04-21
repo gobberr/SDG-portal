@@ -5,21 +5,8 @@
         <div class="col-12">
           <card>
 
-
             <template slot="header">
-              <h4 class="card-title text-primary">Smart Contract list</h4>              
-              <div class="row">  
-                <div class="col-md-10">
-                </div>                
-                <div class="col-md-2 align-items-end" >
-                  <h5>Available Owners:</h5>                  
-                  <b-select v-model="selected" @change="updateOwnerAndRefreshTable()">
-                    <option v-for="option in options" v-bind:value="option.value" >
-                      {{ option.text }}
-                    </option>
-                  </b-select>                  
-                </div>
-              </div>          
+              <h4 class="card-title text-primary">Smart Contract list</h4><br>                           
             </template>
 
             <!-- SmartContract List Table-->
@@ -29,10 +16,7 @@
               </template>
             </b-table>
 
-            <!-- Messaggio template not found -->
-            <!--
-            <h3 v-if="tableOne.data.length<=0"> No smart contracts found for Owner <b>{{selected}}</b> </h3><br>
-            -->
+            <!-- Messaggio smartcontracts not found -->     
             <h3 v-if="noSmartContractsFoundMessage"> No smart contracts found for Owner <b>{{selected}}</b> </h3><br>
 
             <!-- Pagination -->
@@ -60,12 +44,10 @@
   </div>
 </template>
 <script>
-  import moment from 'moment';
-  import LTable from 'src/components/UIComponents/Table.vue'
+  
   import Card from 'src/components/UIComponents/Cards/Card.vue'
   import axios from 'axios'    
   import {OWNER} from "../../../app.config"
-
 		 			
   const tableOneColumns = [
     {
@@ -87,8 +69,7 @@
   ];
   export default {
 
-    components: {
-      LTable,
+    components: {      
       Card
     },
 
@@ -100,13 +81,7 @@
         },
         rowPerPage: 10,
         page: 0,  
-        
-        selected: 'Hera',
-        options: [
-          { text: 'Hera', value: 'Hera' },
-          { text: 'DFIL-Tech', value: 'DFIL-Tech' },
-          
-        ],
+                
         noSmartContractsFoundMessage: false
       }
     },
@@ -141,8 +116,8 @@
         var http = axios.create({
           baseURL: process.env.VUE_APP_PROXY_ENDPOINT,          
         });
-        http.get('/' + this.selected + '/smartcontracts/?limit=' + this.rowPerPage + '&offset=' + this.page)
-        .then(response => {
+        http.get('/' + OWNER + '/smartcontracts/?limit=' + this.rowPerPage + '&offset=' + this.page)        
+        .then(response => {          
           if(response.data.length==0) {
             this.noSmartContractsFoundMessage = true
           } else {
@@ -160,13 +135,8 @@
         this.getSmartContracts()
       },
 
-      updateOwnerAndRefreshTable: function() {
-        this.getSmartContracts()
-      },
-
-      showDetails(item) {
-        var app = this;
-        app.$router.push("/smartContractDetails/" + item.id);
+      showDetails(item) {        
+        this.$router.push("/smartContractDetails/" + item.id);
       }
     }
   }
