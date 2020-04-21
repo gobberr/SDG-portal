@@ -9,6 +9,7 @@
 ## Quick setup
 In the root directory, run `docker-compose up`
 
+## Development setup
 ### install dependencies
 `npm install`
 
