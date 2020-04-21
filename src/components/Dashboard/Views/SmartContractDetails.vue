@@ -16,7 +16,11 @@
           <card>          
             <div class="row">
               <div class="col-12">
-                <b-table id="tableOne" :no-provider-sorting=true ref="tableOne" responsive bordered hover :items="tableOne.data" :fields="tableOne.fields"></b-table>
+                <b-table id="tableOne" :no-provider-sorting=true ref="tableOne" responsive bordered hover :items="tableOne.data" :fields="tableOne.fields">
+                  <template slot="contract.params.contractName" slot-scope="cell">
+                    <a href="" @click.prevent="contractDetailsPage(cell.item)" class="link text-primary">{{tableOne.data[cell.index].contract.params.contractName}}</a>
+                  </template>                
+                </b-table>
               </div>  
             </div>
           </card>
@@ -25,7 +29,7 @@
           <!-- Tabs con i dettagli dello smart contract -->
           <card>            
             <md-tabs class="md-transparent" md-alignment="fixed">
-              <md-tab id="abi" md-label="Smart contract methods">
+              <md-tab id="abi" md-label="Functions">
                 <card v-if='abi.length>0'>                                        
                   <br>                  
                   <div class="row">
@@ -59,7 +63,7 @@
                   </div>
                 </card>
                 <card v-else>                      
-                  <h4> No methods found on smart contract</h4>
+                  <h4> No functions found on smart contract</h4>
                 </card>                  
               </md-tab>
 
@@ -67,7 +71,8 @@
                 <card>                                        
                   <pre><br>{{smartContract.contract.solidity}}</pre>                        
                 </card>                  
-              </md-tab>            
+              </md-tab>  
+
               <md-tab id="html" md-label="HTML" v-if="html_preview.length>0">
                 <card>
                   <br><p v-html="html_preview"></p>
@@ -76,7 +81,7 @@
             </md-tabs>              
           </card>     
 
-         
+          
         </div>        
       </div>     
     </div>
@@ -84,10 +89,10 @@
   
 </template>
 <script>
-  
-  import LTable from 'src/components/UIComponents/Table.vue'
+    
   import Card from 'src/components/UIComponents/Cards/Card.vue'
   import axios from 'axios'
+  import moment from 'moment'
   import {OWNER} from "../../../app.config" 
 
   const tableOneColumns = [    
@@ -114,8 +119,7 @@
   ];
 
   export default {
-    components: {
-      LTable,
+    components: {      
       Card      
     },
 
@@ -160,7 +164,7 @@
             }            
           }          
           this.tableOne.data.push(response.data);
-          this.smartContract = response.data
+          this.smartContract = response.data          
           this.getTemplateFromContract(response.data.contract.templateid, response.data.contract.params)          
         }).catch(e => { 
           console.log("Error: " + e.message); 
@@ -229,13 +233,19 @@
             case "uint256":
               outputsFields.push('int')
               break;
+            case "bool":
+              outputsFields.push('bool')
+              break;
+            case "uint8":
+              outputsFields.push('int')
+              break;
             default:
               //console.log('unsupported type')
           }
         }      
 
         let changeBlockchainState = false;
-        if((this.methodDetails.stateMutability != "view") && (this.methodDetails.stateMutability != "pure")) { //TODO: ensure that this if is respecting the expected behavior
+        if((this.methodDetails.stateMutability != "view") && (this.methodDetails.stateMutability != "pure")) {
           changeBlockchainState = true
         }
 
@@ -254,6 +264,7 @@
         }
         
         //console.log(txArray)
+
         // send call to proxy
         var http = axios.create({
           baseURL: process.env.VUE_APP_PROXY_ENDPOINT,          
@@ -274,10 +285,36 @@
           this.templateInfo = response.data                  
           this.html_preview = response.data.text
           let mustacheVariable = this.getMustacheVariable(response.data.text)
-          // per ogni variabile, la rimpiazza dentro la preview html
-          for(let i=0; i<mustacheVariable.length; i++) {
-            this.html_preview = this.html_preview.replace("{{" + mustacheVariable[i] + "}}", "<b>" + params[mustacheVariable[i]] + "</b>");
-          }          
+
+          let htmlVariable = Object.keys(this.smartContract.contract.params) // array con le variabili html
+          var tempArr = htmlVariable.filter(function(item) {
+            return !mustacheVariable.includes(item); 
+          });
+          mustacheVariable = mustacheVariable.filter(function(item) {
+            return !htmlVariable.includes(item); 
+          });
+          htmlVariable = tempArr;
+          
+          mustacheVariable = this.getMustacheVariable(response.data.text) // array con le variabili mustache
+          
+          // per ogni variabile mustache, rimpiazza key value dentro il html preview
+          for(let i=0; i<mustacheVariable.length; i++) {            
+            //console.log(this.smartContract.contract.params[mustacheVariable[i]])
+            if(moment(this.smartContract.contract.params[mustacheVariable[i]].toString(), "YYYYMMDD", true).isValid()) { // true if the variable is a date
+              let date = this.smartContract.contract.params[mustacheVariable[i]].toString()
+              let formattedDate = date[6] + date[7] + "/" + date[4] + date[5] + "/" + date[0] + date[1] + date[2] + date[3] // convert from YYYYMMDD to DD/MM/YYYY
+              this.html_preview = this.html_preview.replace("{{" + mustacheVariable[i] + "}}", "<b>" +  formattedDate + "</b>");
+            } else {
+              this.html_preview = this.html_preview.replace("{{" + mustacheVariable[i] + "}}", "<b>" + this.smartContract.contract.params[mustacheVariable[i]] + "</b>");
+            }
+            
+            // per ogni params, rimpiazza key value dentro il html preview
+            for(let i=0; i<htmlVariable.length; i++) {
+              //sconsole.log(htmlVariable[i])
+              this.html_preview = this.html_preview.replace("[[" + htmlVariable[i] + "]]", "<b>" + this.smartContract.contract.params[htmlVariable[i]] + "</b>");
+            }
+            
+          }
         }).catch(e => { 
           console.log("Error: " + e.message); 
         });
@@ -301,8 +338,7 @@
         return mustacheVariable;        
       },
       contractDetailsPage: function(item) {
-        var app = this;
-        app.$router.push("/contractDetails/" + this.tableOne.data[0].contract.id);
+        this.$router.push("/contractDetails/" + this.tableOne.data[0].contract.id);
       },
       smartContractListPage: function() {
         this.$router.push("/SmartContractList");
